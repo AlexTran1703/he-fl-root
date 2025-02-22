@@ -1,0 +1,65 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "[BUILD] Configure CMake (Debug Mode)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                "${workspaceFolder}",
+                "-B",
+                "${workspaceFolder}/build",
+                "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Configure CMake project"
+        },
+        {
+            "label": "[BUILD] Build CMake (Debug Mode)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "--config",
+                "Debug"
+            ],
+            "group": "build",
+            "dependsOn": "[BUILD] Configure CMake (Debug Mode)",
+            "problemMatcher": [],
+            "detail": "Build the CMake project"
+        },
+        {
+            "label": "[BUILD] Configure CMake (Release Mode)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                "${workspaceFolder}",
+                "-B",
+                "${workspaceFolder}/build_release",
+                "-DCMAKE_BUILD_TYPE=Releasse"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Configure CMake project release"
+        },
+        {
+            "label": "[BUILD] Build CMake (Release Mode)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build_release",
+                "--config",
+                "Releasse"
+            ],
+            "group": "build",
+            "dependsOn": "[BUILD] Configure CMake (Release Mode)",
+            "problemMatcher": [],
+            "detail": "Build the CMake project release"
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "cmake.configureOnOpen": true,  // Automatically configure on opening the project
+    "cmake.buildDirectory": "${workspaceFolder}/build",  // Set build directory
+    "CMakeTools.defaultVariants": {
+      "buildType": "Release"  // Set the default build type to Release
+    },
+    "CMake.sourceDirectory": "${workspaceFolder}",
+    "files.associations": {
+      "iostream": "cpp"
+    }
+  }
