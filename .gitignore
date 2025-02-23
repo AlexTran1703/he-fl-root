@@ -3,6 +3,6 @@ build/
 build_release/
 
 # Ignore .env file
-.conda
-
+.venv/
+keys/
 # Ignore compiled files

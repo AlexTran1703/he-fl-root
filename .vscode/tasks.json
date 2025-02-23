@@ -31,7 +31,7 @@
             "problemMatcher": [],
             "detail": "Build the CMake project"
         },
-        {
+        /*{
             "label": "[BUILD] Configure CMake (Release Mode)",
             "type": "shell",
             "command": "cmake",
@@ -60,6 +60,6 @@
             "dependsOn": "[BUILD] Configure CMake (Release Mode)",
             "problemMatcher": [],
             "detail": "Build the CMake project release"
-        }
+        }*/
     ]
 }

@@ -1,28 +1,18 @@
+
 #include <iostream>
-#include "seal/seal.h"
-#include <thread>
+#include "openfhe.h"
+#include "../utils/key_generation.h"
 
-
-using namespace std;
-using namespace seal;
+using namespace lbcrypto;
 
 int main() {
-    // Step 1: Create encryption parameters
-    EncryptionParameters parms(scheme_type::bfv);  // Updated to "bfv" instead of "BFV"
+    Crypto::FHEBFV::Instance().set_BFV_Context();
+    // setup CKKS Crypto Context
 
-    // Set up parameters (you can change them depending on your needs)
-    parms.set_poly_modulus_degree(8192); // Polynomial modulus degree
-    parms.set_coeff_modulus(CoeffModulus::Create(8192, { 60, 40, 60 })); // Coefficients modulus
-
-    std::cout << "Hello \r\n";
-    #ifdef DEBUG_MODE
-        cout << "DEBUG MODE\r\n";
-    #endif
-
-    // Create a thread
-    std::thread t([]() {std::cout << "HELOO\r\n";});
-    
-    // Join the thread with the main thread
-    t.join();
+    // saving keys
+    Crypto::FHEBFV::Instance().save_crypto_context();
+    Crypto::FHEBFV::Instance().save_public_key();
+    Crypto::FHEBFV::Instance().save_private_key();
+    Crypto::FHEBFV::Instance().save_mult_key();
     return 0;
 }
