@@ -1,8 +1,9 @@
-# Ignore node_modules directory
-build/
-build_release/
-
 # Ignore .env file
 .venv/
-keys/
+
 # Ignore compiled files
+build/
+build_release/
+# Ignore logs and datas
+logs/
+keys/

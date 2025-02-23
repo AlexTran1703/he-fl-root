@@ -29,7 +29,16 @@
             "group": "build",
             "dependsOn": "[BUILD] Configure CMake (Debug Mode)",
             "problemMatcher": [],
-            "detail": "Build the CMake project"
+            "detail": "Build the CMake project debug"
+        },
+        {
+            "label": "[CLEAN] Clean All CMake Build",
+            "type": "shell",
+            "command": "./scripts/clear_script.sh all",
+            "args": [],
+            "group": "clear",
+            "problemMatcher": [],
+            "detail": "[CLEAN] Clean All CMake Build"
         },
         /*{
             "label": "[BUILD] Configure CMake (Release Mode)",
