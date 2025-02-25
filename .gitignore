@@ -5,5 +5,5 @@
 build/
 build_release/
 # Ignore logs and datas
-logs/
 keys/
+log/

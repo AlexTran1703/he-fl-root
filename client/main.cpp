@@ -6,10 +6,10 @@
 using namespace lbcrypto;
 
 int main() {
-    //Crypto::FHEBFV::Instance().set_context();
+    Crypto::FHEBFV::Instance().set_context();
     // setup CKKS Crypto Context
     Utils::LOG_INFO("Application started");
-    Crypto::FHEBFV::Instance().load_keys();
+    //Crypto::FHEBFV::Instance().load_keys();
 
     // Step 3: Encrypt two integers
     int64_t num1 = 7;
