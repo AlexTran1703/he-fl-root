@@ -1,3 +1,5 @@
+#ifndef UTILS_HEADER_H
+#define UTILS_HEADER_H
 #include <iostream>
 #include <filesystem>
 #include <fstream>
@@ -9,10 +11,49 @@
 
 namespace Utils
 {
-
     using namespace std;
 
-    void folder_exists(const std::string &folder_path) noexcept
+    inline std::string execCommand(const std::string &cmd)
+    {
+        std::array<char, 128> buffer;
+        std::string result;
+
+        // Define the deleter type explicitly
+        using PipeDeleter = std::function<int(FILE *)>;
+
+        // Use a lambda to ensure proper cleanup
+        std::unique_ptr<FILE, PipeDeleter> pipe(popen(cmd.c_str(), "r"), pclose);
+
+        if (!pipe)
+        {
+            throw std::runtime_error("popen() failed!");
+        }
+
+        while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+        {
+            result += buffer.data();
+        }
+
+        return result;
+    }
+    static std::mutex exec_command_mutex; // Mutex for safe console output
+    inline std::string runCommand(const std::string &command)
+    {
+        try
+        {
+            std::string output = execCommand(command);
+
+            // Use mutex to prevent race conditions when printing
+            std::lock_guard<std::mutex> lock(exec_command_mutex);
+            return output;
+        }
+        catch (const std::exception &e)
+        {
+            std::lock_guard<std::mutex> lock(exec_command_mutex);
+            return nullptr;
+        }
+    }
+    inline void folder_exists(const std::string &folder_path) noexcept
     {
         if (!std::filesystem::exists(folder_path))
         {
@@ -21,7 +62,7 @@ namespace Utils
     }
 
     // Get current timestamp
-    std::string getTimestamp()
+    inline std::string getTimestamp()
     {
         time_t now = time(0);
         char buffer[80];
@@ -32,7 +73,7 @@ namespace Utils
     }
 
     // Extract filename from full path (e.g., "/home/user/main.cpp" → "main.log")
-    std::string extractFilename(const std::string &path)
+    inline std::string extractFilename(const std::string &path)
     {
         size_t lastSlash = path.find_last_of("/\\");
         std::string filename = (lastSlash == std::string::npos) ? path : path.substr(lastSlash + 1);
@@ -64,7 +105,7 @@ namespace Utils
         }
 
     public:
-        Logger()= default;
+        Logger() = default;
         virtual ~Logger() = default;
         static Logger &Instance()
         {
@@ -75,7 +116,7 @@ namespace Utils
         void log(const std::string &level, const std::string &message, const std::string &file, int line)
         {
             std::lock_guard<std::mutex> lock(logMutex); // Thread safety
-            
+
             if (!logFile.is_open())
             {
                 filename = generateFilename("log/", extractFilename(file));
@@ -107,3 +148,5 @@ namespace Utils
         }
     };
 }
+
+#endif

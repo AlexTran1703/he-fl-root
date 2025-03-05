@@ -8,7 +8,8 @@
 #include <memory>
 #include <map>
 #include <functional>
-
+#include "../../utils/json.h"
+#include "../../utils/utils.h"
 class WebSocketSession; // Forward declaration
 
 namespace asio = boost::asio;
@@ -22,16 +23,17 @@ class WebSocketSession : public std::enable_shared_from_this<WebSocketSession>
 private:
     websocket::stream<tcp::socket> ws_;
     beast::flat_buffer buffer_;
-    std::map<std::string, std::function<void(std::string, std::shared_ptr<WebSocketSession>)>> handlers_;
+    std::map<std::string, std::function<void(JSONHandler&, std::shared_ptr<WebSocketSession>)>> handlers_;
 
 public:
     explicit WebSocketSession(tcp::socket socket,
-                              std::map<std::string, std::function<void(std::string, std::shared_ptr<WebSocketSession>)>> handlers);
+                              std::map<std::string, std::function<void(JSONHandler&, std::shared_ptr<WebSocketSession>)>> handlers);
 
     void start();
     void readMessage();
     void processMessage(const std::string &message);
     void sendMessage(const std::string &message);
+    void sendMessage(const JSONHandler &message_json);
 };
 
 class WebSocketServer
@@ -41,14 +43,15 @@ public:
 
     void addClient(std::shared_ptr<WebSocketSession> session);
     void removeClient(std::shared_ptr<WebSocketSession> session);
-    void broadcastMessage(const std::string &message);
+    void broadcastMessage(const JSONHandler &message);
+    void shutdownMessage(const JSONHandler &message);
 
 private:
     asio::io_context ioc_;
     tcp::acceptor acceptor_;
     std::set<std::shared_ptr<WebSocketSession>> active_clients_;
     std::mutex clients_mutex_;
-    std::map<std::string, std::function<void(std::string, std::shared_ptr<WebSocketSession>)>> handlers_;
+    std::map<std::string, std::function<void(JSONHandler&, std::shared_ptr<WebSocketSession>)>> handlers_;
     std::vector<std::thread> threads_;
 
     WebSocketServer(uint16_t port);

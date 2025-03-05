@@ -1,8 +1,10 @@
 #include "ws/ws_client.h"
 #include <iostream>
 #include "../utils/json.h"
-int main() {
-
+#include "../utils/utils.h"
+int main()
+{
+    Utils::LOG_INFO("Start Client");
     JSONHandler jsonHandler;
 
     jsonHandler.setValue("name", std::string("Alice"));
@@ -10,37 +12,45 @@ int main() {
     jsonHandler.setVector("grades", std::vector<std::string>{"A", "B", "A"});
     jsonHandler.setVector("heights", std::vector<double>{5.7, 6.1, 5.9});
 
-    std::cout << "Serialized JSON:\n" << jsonHandler.serialize() << std::endl;
-
+    std::cout << "Serialized JSON:\n"
+              << jsonHandler.serialize() << std::endl;
+    auto output = Utils::runCommand("ls -l");
+    std::cout << "COM: " << output << "\r\n";
     std::vector<int> scores = jsonHandler.getVector<int>("scores", {});
     std::cout << "Scores: ";
-    for (int score : scores) std::cout << score << " ";
+    for (int score : scores)
+        std::cout << score << " ";
     std::cout << std::endl;
 
-    //std::vector<int> scores = jsonHandler.getValue<std::vector<int>>("scores", {});
-    /*std::cout << "Scores: ";
-    for (int score : scores) std::cout << score << " ";
-    std::cout << std::endl;*/
-
-    try {
+    try
+    {
         WebSocketClient client;
         client.connect("localhost", "8080");
-
+        JSONHandler vector_;
+        vector_.setValue("type", std::string("VECTOR"));
+        vector_.setVector("values", std::vector<double>{5.7, 6.1, 5.9});
+        client.sendMessage(vector_);
         std::string input;
-        while (true) {
+        while (true)
+        {
             std::cout << "Enter command (PING, ECHO <message>, BROADCAST <message>, or EXIT): ";
             std::getline(std::cin, input);
 
-            if (input == "EXIT") {
+            if (input == "EXIT")
+            {
                 break;
             }
-
-            client.sendMessage(input);
+            JSONHandler message;
+            message.setValue("type", std::string(input));
+            message.setValue("payload", std::string(input));
+            client.sendMessage(message);
         }
 
         client.close();
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception &e)
+    {
         std::cerr << "Client Error: " << e.what() << std::endl;
-    }    
+    }
     return 0;
 }

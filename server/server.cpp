@@ -4,6 +4,7 @@
 #include <chrono>
 
 int main() {
+    Utils::LOG_INFO("Start Server");
     try {
         WebSocketServer::getInstance(8080);
         std::cout << "WebSocket Server running on port 8080...\n";

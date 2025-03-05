@@ -11,7 +11,7 @@ include_directories(${PROJECT_SOURCE_DIR}/utils)
 include(ExternalProject)  # Ensure this line is present
 
 set(CMAKE_CXX_COMPILER "/usr/bin/g++")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fopenmp \
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wignored-attributes -fopenmp \
                         -Wno-missing-field-initializers -Wno-unused-parameter")   # For C++ compiler
 # Optionally, add custom configurations based on build type
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

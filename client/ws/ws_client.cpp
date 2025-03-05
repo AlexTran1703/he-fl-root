@@ -32,6 +32,16 @@ void WebSocketClient::sendMessage(const std::string& message) {
         });
 }
 
+void WebSocketClient::sendMessage(const JSONHandler& message_json) {
+    std::string message = message_json.serialize();
+    ws_.async_write(asio::buffer(message),
+        [this](beast::error_code ec, std::size_t) {
+            if (ec) {
+                std::cerr << "Write error: " << ec.message() << std::endl;
+            }
+        });
+}
+
 void WebSocketClient::readMessage() {
     ws_.async_read(buffer_,
         [this](beast::error_code ec, std::size_t bytes_transferred) {
@@ -41,35 +51,49 @@ void WebSocketClient::readMessage() {
                 processMessage(message);
                 readMessage();  // Continue reading
             } else {
-                std::cerr << "Read error: " << ec.message() << std::endl;
+                Utils::LOG_ERROR("Read error: " + ec.message());
+                std::cerr << "Server close connection" << std::endl;
+                JSONHandler payload_exit;
+                payload_exit.setValue("type", std::string("EXIT"));
+                handlers_["EXIT"](payload_exit);
             }
         });
 }
 
 void WebSocketClient::processMessage(const std::string& message) {
     std::istringstream stream(message);
+    std::cout << "MESSAGE:  " << message << std::endl;
+    JSONHandler message_json;
+    if(!message_json.parse(message)){
+        Utils::LOG_ERROR("Error when parsing json message");
+        return;
+    }
     std::string command, payload;
-    stream >> command;
-    std::getline(stream, payload);
-
+    command = message_json.getValue<std::string>("type");
+    payload = message_json.getValue<std::string>("payload");
     if (handlers_.count(command)) {
-        handlers_[command](payload);
+        handlers_[command](message_json);
     } else {
         std::cerr << "Unknown message type: " << message << std::endl;
     }
 }
 
 void WebSocketClient::setupHandlers() {
-    handlers_["PONG"] = [](const std::string&) {
+    handlers_["PONG"] = [](JSONHandler& payload) {
+        std::cout << "PONG: " << payload.serialize() << "\n";
         std::cout << "Received PONG response!\n";
     };
     
-    handlers_["ECHO"] = [](const std::string& payload) {
-        std::cout << "Echoed message: " << payload << "\n";
+    handlers_["ECHO"] = [](JSONHandler& payload) {
+        std::cout << "Echoed message: " << payload.serialize() << "\n";
     };
 
-    handlers_["BROADCAST"] = [](const std::string& payload) {
-        std::cout << "Broadcast message: " << payload << "\n";
+    handlers_["BROADCAST"] = [](JSONHandler& payload) {
+        std::cout << "Broadcast message: " << payload.serialize() << "\n";
+    };
+    handlers_["EXIT"] = [](JSONHandler& payload) {
+        Utils::LOG_WARNING("Server close connection or session");
+        exit(1);
     };
 }
 

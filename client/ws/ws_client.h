@@ -8,7 +8,8 @@
 #include <thread>
 #include <map>
 #include <functional>
-
+#include "../../utils/json.h"
+#include "../../utils/utils.h"
 namespace asio = boost::asio;
 namespace beast = boost::beast;
 namespace websocket = beast::websocket;
@@ -20,7 +21,7 @@ private:
     tcp::resolver resolver_;
     websocket::stream<tcp::socket> ws_;
     beast::flat_buffer buffer_;
-    std::map<std::string, std::function<void(const std::string&)>> handlers_;
+    std::map<std::string, std::function<void(JSONHandler&)>> handlers_;
     std::thread io_thread_;
 
 public:
@@ -29,6 +30,7 @@ public:
     
     void connect(const std::string& host, const std::string& port);
     void sendMessage(const std::string& message);
+    void sendMessage(const JSONHandler& message);
     void readMessage();
     void processMessage(const std::string& message);
     void close();
