@@ -26,11 +26,14 @@ endif()
 # Set source to compile
 file(GLOB_RECURSE SERVER_SOURCES
     server/*
+    utils/json.cpp
 )
 
 file(GLOB_RECURSE CLIENT_SOURCES
     client/*
+    utils/json.cpp
 )
+
 ###########################################
 
 ###########################################
@@ -61,6 +64,7 @@ ExternalProject_Add(
 # Includes third parties libraries
 # And Link dymanic libraries
 find_package(OpenFHE REQUIRED)
+find_package(RapidJSON REQUIRED)
 
 message(STATUS "PATH TO OpenFHE: ${OpenFHE_INCLUDE} ${OpenFHE_SHARED_LIBRARIES}")
 include_directories(${OPENMP_INCLUDES})
@@ -71,15 +75,19 @@ include_directories(${OpenFHE_INCLUDE}/pke)
 set(CMAKE_EXE_LINKER_FLAGS ${OpenFHE_EXE_LINKER_FLAGS})
 link_libraries( ${OpenFHE_SHARED_LIBRARIES} )
 
+
+include_directories(${RapidJSON_INCLUDE_DIRS})
+
 ####################################################################
 
 ####################################################################
 set(REQUIRED_LIBS ${CMAKE_DL_LIBS} 
-                -static-libstdc++ -static-libgcc -Wl,-Bstatic -lc -Wl,-Bdynamic ${CMAKE_DL_LIBS})
+                -static-libstdc++ -static-libgcc -Wl,-Bstatic -lc -Wl,-Bdynamic ${CMAKE_DL_LIBS}
+                ${RapidJSON_INCLUDE_DIRS})
 # Set up source and run the compiler
 # Add the source file to the project
-add_executable(client ${CLIENT_SOURCES})
-add_executable(server ${SERVER_SOURCES})
+add_executable(client ${CLIENT_SOURCES} )
+add_executable(server ${SERVER_SOURCES} )
 # Link all libraries ${CMAKE_DL_LIBS}
 target_link_libraries(client ${REQUIRE_LIBS})
 target_link_libraries(server ${REQUIRE_LIBS})
