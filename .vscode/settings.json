@@ -90,6 +90,7 @@
       "format": "cpp",
       "stdfloat": "cpp",
       "__nullptr": "cpp",
-      "*.ipp": "cpp"
+      "*.ipp": "cpp",
+      "coroutine": "cpp"
     }
   }
