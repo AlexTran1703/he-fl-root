@@ -9,20 +9,39 @@
 #include <map>
 #include <functional>
 
-class WebSocketSession;  // Forward declaration
+class WebSocketSession; // Forward declaration
 
 namespace asio = boost::asio;
 namespace beast = boost::beast;
 namespace websocket = beast::websocket;
 using tcp = asio::ip::tcp;
+class WebSocketServer;
 
-class WebSocketServer {
+class WebSocketSession : public std::enable_shared_from_this<WebSocketSession>
+{
+private:
+    websocket::stream<tcp::socket> ws_;
+    beast::flat_buffer buffer_;
+    std::map<std::string, std::function<void(std::string, std::shared_ptr<WebSocketSession>)>> handlers_;
+
 public:
-    static WebSocketServer& getInstance(uint16_t port = 8080);
+    explicit WebSocketSession(tcp::socket socket,
+                              std::map<std::string, std::function<void(std::string, std::shared_ptr<WebSocketSession>)>> handlers);
+
+    void start();
+    void readMessage();
+    void processMessage(const std::string &message);
+    void sendMessage(const std::string &message);
+};
+
+class WebSocketServer
+{
+public:
+    static WebSocketServer &getInstance(uint16_t port = 8080);
 
     void addClient(std::shared_ptr<WebSocketSession> session);
     void removeClient(std::shared_ptr<WebSocketSession> session);
-    void broadcastMessage(const std::string& message);
+    void broadcastMessage(const std::string &message);
 
 private:
     asio::io_context ioc_;
@@ -38,4 +57,4 @@ private:
     void startIOThreads();
 };
 
-#endif  // WEBSOCKET_SERVER_H
+#endif // WEBSOCKET_SERVER_H
