@@ -1,6 +1,8 @@
 #include "ws_server.h"
 #include <iostream>
-#include "../../utils/json.h"
+#include "json.h"
+using namespace AsymKeyUtils;
+using namespace SymKeyUtils;
 WebSocketSession::WebSocketSession(tcp::socket socket,
                                    std::map<std::string, std::function<void(JSONHandler&, std::shared_ptr<WebSocketSession>)>> handlers)
     : ws_(std::move(socket)), handlers_(std::move(handlers)) {}
@@ -150,6 +152,21 @@ void WebSocketServer::setupHandlers()
         JSONHandler payload_back;
         payload_back.setValue("type", std::string("RESULT"));
         payload_back.setValue("payload", double(sum));
+        session->sendMessage(payload_back);
+    };
+    handlers_["CLIENT_EXCHANGE_KEY"] = [](JSONHandler& payload, std::shared_ptr<WebSocketSession> session)
+    {
+        std::vector<unsigned char> client_key_bytes = payload.getVector<unsigned char>("values");
+        EVP_PKEY* client_key = load_public_key_from_bytes(client_key_bytes);
+        EVP_PKEY* server_key = generate_ec_key();
+        std::vector<unsigned char> pubkeyA_bytes = get_public_key_bytes(server_key);
+        std::vector<unsigned char> secretA = compute_shared_secret(server_key, client_key);
+        auto secretA_ = derive_aes_key(secretA);
+        std::string secret_string(secretA_.begin(), secretA_.end());
+        std::cout << "++++Secret: " << secret_string << std::endl;
+        JSONHandler payload_back;
+        payload_back.setValue("type", std::string("SERVER_EXCHANGE_KEY"));
+        payload_back.setVector("values", std::vector<unsigned char>(pubkeyA_bytes));
         session->sendMessage(payload_back);
     };
 }

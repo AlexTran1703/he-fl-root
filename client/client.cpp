@@ -2,10 +2,14 @@
 #include <iostream>
 #include "json.h"
 #include "utils.h"
+#include "utils_key_generation.h"
+
+using namespace AsymKeyUtils;
+using namespace SymKeyUtils;
 int main()
 {
     Utils::LOG_INFO("Start Client");
-    JSONHandler jsonHandler;
+    /*JSONHandler jsonHandler;
 
     jsonHandler.setValue("name", std::string("Alice"));
     jsonHandler.setVector("scores", std::vector<int>{90, 85, 88});
@@ -20,16 +24,13 @@ int main()
     std::cout << "Scores: ";
     for (int score : scores)
         std::cout << score << " ";
-    std::cout << std::endl;
+    std::cout << std::endl;*/
 
     try
     {
         WebSocketClient client;
         client.connect("localhost", "8080");
-        JSONHandler vector_;
-        vector_.setValue("type", std::string("VECTOR"));
-        vector_.setVector("values", std::vector<double>{5.7, 6.1, 5.9});
-        client.sendMessage(vector_);
+        
         std::string input;
         while (true)
         {

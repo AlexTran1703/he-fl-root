@@ -2,17 +2,67 @@
 #define UTILS_HEADER_H
 #include <iostream>
 #include <filesystem>
+#include <functional>
+#include <openssl/bio.h>
+#include <openssl/buffer.h>
+#include <openssl/rand.h>
 #include <fstream>
 #include <string>
 #include <ctime>
 #include <mutex>
 #include <thread>
 #include <sstream>
-
 namespace Utils
 {
+    
     using namespace std;
+    
+    // Convert std::string to std::vector<unsigned char>
+    inline std::vector<unsigned char> string_to_vector(const std::string &str)
+    {
+        return std::vector<unsigned char>(str.begin(), str.end());
+    }
 
+    // Convert std::vector<unsigned char> to std::string
+    inline std::string vector_to_string(const std::vector<unsigned char> &vec)
+    {
+        return std::string(vec.begin(), vec.end());
+    }
+
+    // Base64 Encoding
+    inline std::string base64_encode(const std::vector<unsigned char> &data)
+    {
+        BIO *bio = BIO_new(BIO_f_base64());
+        BIO *mem = BIO_new(BIO_s_mem());
+        bio = BIO_push(bio, mem);
+
+        BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); // No newline
+        BIO_write(bio, data.data(), data.size());
+        BIO_flush(bio);
+
+        BUF_MEM *bufferPtr;
+        BIO_get_mem_ptr(bio, &bufferPtr);
+        std::string encoded(bufferPtr->data, bufferPtr->length);
+
+        BIO_free_all(bio);
+        return encoded;
+    }
+    // Base64 Decoding
+    inline std::vector<unsigned char> base64_decode(const std::string &encoded)
+    {
+        BIO *bio = BIO_new_mem_buf(encoded.data(), encoded.length());
+        BIO *b64 = BIO_new(BIO_f_base64());
+        bio = BIO_push(b64, bio);
+
+        BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+
+        std::vector<unsigned char> decoded(encoded.length());
+        int decoded_length = BIO_read(bio, decoded.data(), encoded.length());
+
+        BIO_free_all(bio);
+        decoded.resize(decoded_length);
+        return decoded;
+    }
     inline std::string execCommand(const std::string &cmd)
     {
         std::array<char, 128> buffer;
@@ -80,10 +130,9 @@ namespace Utils
         size_t dotPos = filename.find_last_of('.');
         return (dotPos == std::string::npos) ? filename : filename.substr(0, dotPos);
     }
-
-#define LOG_INFO(msg) Logger::Instance().log("INFO", msg, __FILE__, __LINE__)
-#define LOG_WARNING(msg) Logger::Instance().log("WARNING", msg, __FILE__, __LINE__)
-#define LOG_ERROR(msg) Logger::Instance().log("ERROR", msg, __FILE__, __LINE__)
+    #define LOG_INFO(msg) Logger::Instance().log("INFO", msg, __FILE__, __LINE__)
+    #define LOG_WARNING(msg) Logger::Instance().log("WARNING", msg, __FILE__, __LINE__)
+    #define LOG_ERROR(msg) Logger::Instance().log("ERROR", msg, __FILE__, __LINE__)
     class Logger
     {
     private:
@@ -147,6 +196,11 @@ namespace Utils
             }
         }
     };
+    inline void handleErrors()
+    {
+        LOG_ERROR("ERROR");
+        exit(EXIT_FAILURE);
+    }
 }
 
 #endif
