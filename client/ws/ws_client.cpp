@@ -91,6 +91,9 @@ void WebSocketClient::setupHandlers() {
     handlers_["BROADCAST"] = [](JSONHandler& payload) {
         std::cout << "Broadcast message: " << payload.serialize() << "\n";
     };
+    handlers_["RESULT"] = [](JSONHandler& payload) {
+        std::cout << "Result message: " << payload.serialize() << "\n";
+    };
     handlers_["EXIT"] = [](JSONHandler& payload) {
         Utils::LOG_WARNING("Server close connection or session");
         exit(1);

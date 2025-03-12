@@ -26,14 +26,11 @@ endif()
 # Set source to compile
 file(GLOB_RECURSE SERVER_SOURCES
     server/*
-    utils/json.cpp
 )
 
 file(GLOB_RECURSE CLIENT_SOURCES
     client/*
-    utils/json.cpp
 )
-
 ###########################################
 
 ###########################################
@@ -41,13 +38,13 @@ file(GLOB_RECURSE CLIENT_SOURCES
 # Add OpenFHE as an external project
 set(THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/third_party)
 set(OPENFHE_DIR ${THIRD_PARTY_DIR}/openfhe-development)
-set(OPENFHE_INSTALL ${OPENFHE_DIR}/install)
+set(OPENFHE_INSTALL ${CMAKE_BINARY_DIR}/openfhe)
 # Add the external project
 ExternalProject_Add(
     OpenFHE
     PREFIX ${OPENFHE_INSTALL}
     SOURCE_DIR ${OPENFHE_DIR}
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${OPENFHE_INSTALL} -DBUILD_SHARED_LIBS=ON
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${OPENFHE_INSTALL} -DUSE_SYSTEM_RAPIDJSON=ON -DRAPIDJSON_DIR=/usr/share/cmake/RapidJSON
     BUILD_ALWAYS OFF
     INSTALL_DIR ${OPENFHE_INSTALL}
 )
@@ -56,26 +53,24 @@ ExternalProject_Add(
 # Locate Static Built Libraries
 # Set the path to library if it's not globally installed
 
-#find_package(SEAL REQUIRED)
-
 ##################################################################
 
 ###################################################################
 # Includes third parties libraries
 # And Link dymanic libraries
-find_package(OpenFHE REQUIRED)
 find_package(RapidJSON REQUIRED)
-
-message(STATUS "PATH TO OpenFHE: ${OpenFHE_INCLUDE} ${OpenFHE_SHARED_LIBRARIES}")
+find_package(OpenFHE REQUIRED)
+#OpenMP
 include_directories(${OPENMP_INCLUDES})
-include_directories(${OpenFHE_INCLUDE})
-include_directories(${OpenFHE_INCLUDE}/binfhe)
-include_directories(${OpenFHE_INCLUDE}/core)
-include_directories(${OpenFHE_INCLUDE}/pke)
-set(CMAKE_EXE_LINKER_FLAGS ${OpenFHE_EXE_LINKER_FLAGS})
+#OpenFHE
+set(OPENFHE_INCLUDE ${OPENFHE_INSTALL}/include)
+include_directories(${OPENFHE_INCLUDE}/openfhe/pke)
+include_directories(${OPENFHE_INCLUDE}/openfhe)
+include_directories(${OPENFHE_INCLUDE}/openfhe/binfhe)
+include_directories(${OPENFHE_INCLUDE}/openfhe/core)
 link_libraries( ${OpenFHE_SHARED_LIBRARIES} )
-
-
+set(CMAKE_EXE_LINKER_FLAGS ${OpenFHE_EXE_LINKER_FLAGS})
+#RapidJson
 include_directories(${RapidJSON_INCLUDE_DIRS})
 
 ####################################################################
@@ -83,7 +78,7 @@ include_directories(${RapidJSON_INCLUDE_DIRS})
 ####################################################################
 set(REQUIRED_LIBS ${CMAKE_DL_LIBS} 
                 -static-libstdc++ -static-libgcc -Wl,-Bstatic -lc -Wl,-Bdynamic ${CMAKE_DL_LIBS}
-                ${RapidJSON_INCLUDE_DIRS})
+                 ${LIB_DIR})
 # Set up source and run the compiler
 # Add the source file to the project
 add_executable(client ${CLIENT_SOURCES} )

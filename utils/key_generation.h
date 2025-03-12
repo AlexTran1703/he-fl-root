@@ -3,9 +3,9 @@
 #include <iomanip>
 #include <tuple>
 #include <unistd.h>
-
+#define CEREAL_RAPIDJSON_NAMESPACE my_project_rapidjson
 #include "openfhe.h"
-
+#include "cereal/archives/json.hpp"
 // header files needed for serialization
 #include "ciphertext-ser.h"
 #include "cryptocontext-ser.h"

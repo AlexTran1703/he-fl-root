@@ -133,11 +133,11 @@ void WebSocketServer::setupHandlers()
     {
         session->sendMessage(payload);
     };
-    handlers_["BROADCAST"] = [this](JSONHandler& payload, std::shared_ptr<WebSocketSession>)
+    handlers_["BROADCAST"] = [this](JSONHandler& payload, std::shared_ptr<WebSocketSession> session)
     {
         broadcastMessage(payload);
     };
-    handlers_["VECTOR"] = [](JSONHandler& payload, std::shared_ptr<WebSocketSession>)
+    handlers_["VECTOR"] = [](JSONHandler& payload, std::shared_ptr<WebSocketSession> session)
     {
         std::vector<double> scores = payload.getVector<double>("values");
         double sum = 0;
@@ -147,6 +147,10 @@ void WebSocketServer::setupHandlers()
         }
         std::cout << std::endl;
         std::cout << "Total sum: " << sum << std::endl;
+        JSONHandler payload_back;
+        payload_back.setValue("type", std::string("RESULT"));
+        payload_back.setValue("payload", double(sum));
+        session->sendMessage(payload_back);
     };
 }
 

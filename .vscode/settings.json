@@ -91,6 +91,7 @@
       "stdfloat": "cpp",
       "__nullptr": "cpp",
       "*.ipp": "cpp",
-      "coroutine": "cpp"
+      "coroutine": "cpp",
+      "filesystem": "cpp"
     }
   }

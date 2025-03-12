@@ -1,10 +1,12 @@
 #include "ws/ws_server.h"
 #include <iostream>
 #include <thread>
+#include "key_generation.h"
 #include <chrono>
 
 int main() {
     Utils::LOG_INFO("Start Server");
+    Crypto::FHEBFV::Instance().set_context();
     try {
         WebSocketServer::getInstance(8080);
         std::cout << "WebSocket Server running on port 8080...\n";

@@ -1,7 +1,7 @@
 #include "ws/ws_client.h"
 #include <iostream>
-#include "../utils/json.h"
-#include "../utils/utils.h"
+#include "json.h"
+#include "utils.h"
 int main()
 {
     Utils::LOG_INFO("Start Client");
